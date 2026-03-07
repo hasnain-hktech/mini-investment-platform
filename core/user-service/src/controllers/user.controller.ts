@@ -1,0 +1,28 @@
+import { Request, Response } from "express";
+import { UserService } from "../services/user.service";
+import { AppError } from "../types/errors";
+
+export class UserController {
+  constructor(private service: UserService) {}
+
+  async signup(req: Request, res: Response): Promise<void> {
+    // your turn:
+    // 1. extract data from req.body
+    const data = req.body;
+    // 2. call this.service.signup()
+    try {
+      const userResponse = await this.service.signup(data);
+      // 3. return 201 with the user response
+      res.status(201).json(userResponse);
+    } catch (error) {
+      // 4. catch AppError → return error.statusCode + error.message
+      if (error instanceof AppError) {
+        res.status(error.statusCode).json({ message: error.message });
+      } else {
+        // 5. catch unknown errors → return 500
+        console.error("Unexpected error:", error);
+        res.status(500).json({ message: "Internal Server Error" });
+      }
+    }
+  }
+}
