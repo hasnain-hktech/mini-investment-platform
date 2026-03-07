@@ -17,11 +17,11 @@ export class UserController {
     } catch (error) {
       // 4. catch AppError → return error.statusCode + error.message
       if (error instanceof AppError) {
-        res.status(error.statusCode).json({ message: error.message });
+        res.status(error.statusCode).json({ error: error.message });
       } else {
         // 5. catch unknown errors → return 500
         console.error("Unexpected error:", error);
-        res.status(500).json({ message: "Internal Server Error" });
+        res.status(500).json({ error: "Internal Server Error" });
       }
     }
   }
