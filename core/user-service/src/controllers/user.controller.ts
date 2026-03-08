@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { UserService } from "../services/user.service";
 import { AppError } from "../types/errors";
+import logger from "../utils/logger";
 
 export class UserController {
   constructor(private service: UserService) {}
@@ -20,7 +21,10 @@ export class UserController {
         res.status(error.statusCode).json({ error: error.message });
       } else {
         // 5. catch unknown errors → return 500
-        console.error("Unexpected error:", error);
+        logger.error("Unexpected error", {
+          error,
+          correlationId: req.headers["x-correlation-id"],
+        });
         res.status(500).json({ error: "Internal Server Error" });
       }
     }
