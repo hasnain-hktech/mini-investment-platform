@@ -4,11 +4,15 @@ import { UserRepository } from "./repositories/user.repository";
 import { UserService } from "./services/user.service";
 import { UserController } from "./controllers/user.controller";
 import { createUserRouter } from "./routes/user.routes";
+import { correlationIdMiddleware } from "./middleware/correlationId";
+import { requestLoggerMiddleware } from "./middleware/requestLogger";
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 
 app.use(express.json());
+app.use(correlationIdMiddleware);
+app.use(requestLoggerMiddleware);
 
 // 1. instantiate PrismaClient
 // 2. instantiate UserRepository with prisma

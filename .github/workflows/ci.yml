@@ -1,4 +1,4 @@
-name: CI
+name: CI Pipeline
 
 on:
   push:
@@ -8,6 +8,7 @@ on:
 
 jobs:
   test-user-service:
+    name: "User Service Tests"
     runs-on: ubuntu-latest
 
     defaults:
