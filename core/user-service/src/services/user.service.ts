@@ -2,9 +2,13 @@ import bcrypt from "bcrypt";
 import { IUserRepository } from "../repositories/user.repository";
 import { SignupDto, UserResponse } from "../types/user.types";
 import { ValidationError, ConflictError } from "../types/errors";
+import { IEmailService } from "./email.service";
 
 export class UserService {
-  constructor(private repository: IUserRepository) {}
+  constructor(
+    private repository: IUserRepository,
+    private emailService: IEmailService,
+  ) {}
 
   async signup(data: SignupDto): Promise<UserResponse> {
     // your turn — implement the 6 steps
@@ -34,7 +38,18 @@ export class UserService {
       password: hashedPassword,
     });
 
-    // Step 6: Return the user response
+    // Step 6: Generate verification token
+    // Step 7: Save token to DB
+    // Step 8: Send verification email
+
+    const verificationToken = crypto.randomUUID();
+    await this.repository.saveVerificationToken(user.id, verificationToken);
+    await this.emailService.sendVerificationEmail(
+      user.email,
+      verificationToken,
+    );
+
+    // Step 9: Return the user response
     return {
       id: user.id,
       email: user.email,
