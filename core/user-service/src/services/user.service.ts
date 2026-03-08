@@ -1,7 +1,7 @@
 import bcrypt from "bcrypt";
 import { IUserRepository } from "../repositories/user.repository";
 import { SignupDto, UserResponse } from "../types/user.types";
-import { ValidationError, ConflictError } from "../types/errors";
+import { ValidationError, ConflictError, NotFoundError } from "../types/errors";
 import { IEmailService } from "./email.service";
 
 export class UserService {
@@ -56,5 +56,21 @@ export class UserService {
       firstName: user.firstName,
       lastName: user.lastName,
     };
+  }
+
+  async verifyEmail(token: string): Promise<void> {
+    // 1. find user by token → if not found throw NotFoundError("Invalid or expired token")
+    // 2. check if already verified → throw ValidationError("Email already verified")
+    // 3. mark email as verified
+    const user = await this.repository.findByVerificationToken(token);
+    if (!user) {
+      throw new NotFoundError("Invalid or expired token");
+    }
+
+    if (user.isEmailVerified) {
+      throw new ValidationError("Email already verified");
+    }
+
+    await this.repository.markEmailVerified(user.id);
   }
 }

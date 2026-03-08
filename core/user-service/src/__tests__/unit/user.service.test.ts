@@ -1,14 +1,20 @@
 import { UserService } from "../../services/user.service";
 import { IUserRepository } from "../../repositories/user.repository";
+import { IEmailService } from "../../services/email.service";
 
-// Mock repository — fake implementation of IUserRepository
 const mockRepository: jest.Mocked<IUserRepository> = {
   findByEmail: jest.fn(),
   create: jest.fn(),
+  saveVerificationToken: jest.fn(),
+  findByVerificationToken: jest.fn(),
+  markEmailVerified: jest.fn(),
 };
 
-// Create service with mock repository injected
-const userService = new UserService(mockRepository);
+const mockEmailService: jest.Mocked<IEmailService> = {
+  sendVerificationEmail: jest.fn(),
+};
+
+const userService = new UserService(mockRepository, mockEmailService);
 
 // Reset mocks before each test so they don't bleed into each other
 beforeEach(() => {
@@ -51,6 +57,8 @@ describe("UserService.signup", () => {
       firstName: "John",
       lastName: "Doe",
       password: "hashed-password",
+      isEmailVerified: false,
+      verificationToken: null,
       createdAt: new Date(),
       updatedAt: new Date(),
     });
@@ -77,6 +85,8 @@ describe("UserService.signup", () => {
       firstName: "John",
       lastName: "Doe",
       password: "hashed-password",
+      isEmailVerified: false,
+      verificationToken: null,
       createdAt: new Date(),
       updatedAt: new Date(),
     });
@@ -94,5 +104,57 @@ describe("UserService.signup", () => {
       firstName: "John",
       lastName: "Doe",
     });
+  });
+});
+
+describe("UserService.verifyEmail", () => {
+  it("should throw NotFoundError if token is invalid", async () => {
+    // your turn:
+    // make mockRepository.findByVerificationToken return null
+    // expect it to throw "Invalid or expired token"
+    mockRepository.findByVerificationToken.mockResolvedValue(null);
+    await expect(userService.verifyEmail("invalid-token")).rejects.toThrow(
+      "Invalid or expired token",
+    );
+  });
+
+  it("should throw ValidationError if email already verified", async () => {
+    // your turn:
+    // make mockRepository.findByVerificationToken return a user with isEmailVerified: true
+    // expect it to throw "Email already verified"
+    mockRepository.findByVerificationToken.mockResolvedValue({
+      id: "1",
+      email: "test@example.com",
+      firstName: "John",
+      lastName: "Doe",
+      password: "hashed-password",
+      isEmailVerified: true,
+      verificationToken: null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+    await expect(userService.verifyEmail("valid-token")).rejects.toThrow(
+      "Email already verified",
+    );
+  });
+
+  it("should mark email as verified successfully", async () => {
+    // your turn:
+    // make mockRepository.findByVerificationToken return a user with isEmailVerified: false
+    // call userService.verifyEmail with a token
+    // expect mockRepository.markEmailVerified to have been called with the user id
+    mockRepository.findByVerificationToken.mockResolvedValue({
+      id: "1",
+      email: "test@example.com",
+      firstName: "John",
+      lastName: "Doe",
+      password: "hashed-password",
+      isEmailVerified: false,
+      verificationToken: null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+    await userService.verifyEmail("valid-token");
+    expect(mockRepository.markEmailVerified).toHaveBeenCalledWith("1");
   });
 });

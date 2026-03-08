@@ -29,4 +29,27 @@ export class UserController {
       }
     }
   }
+
+  async verifyEmail(req: Request, res: Response): Promise<void> {
+    // 1. extract token from req.query.token
+    // 2. call this.service.verifyEmail(token)
+    // 3. return 200 with { message: "Email verified successfully" }
+    // 4. catch errors same pattern as signup
+    const token = req.query.token as string;
+
+    try {
+      await this.service.verifyEmail(token);
+      res.status(200).json({ message: "Email verified successfully" });
+    } catch (error) {
+      if (error instanceof AppError) {
+        res.status(error.statusCode).json({ error: error.message });
+      } else {
+        logger.error("Unexpected error", {
+          error,
+          correlationId: req.headers["x-correlation-id"],
+        });
+        res.status(500).json({ error: "Internal Server Error" });
+      }
+    }
+  }
 }

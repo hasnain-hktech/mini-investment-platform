@@ -27,7 +27,7 @@ export class ResendEmailService implements IEmailService {
     `;
 
     await this.resend.emails.send({
-      from: "noreply@yourdomain.com",
+      from: "onboarding@resend.dev",
       to: email,
       subject: "Verify your email",
       html: emailContent,
