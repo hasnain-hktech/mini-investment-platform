@@ -8,7 +8,11 @@ const mockService = {
 
 const controller = new UserController(mockService);
 
-const mockReq = (body: object) => ({ body }) as any;
+const mockReq = (body: object) =>
+  ({
+    body,
+    headers: {},
+  }) as any;
 const mockRes = () => {
   const res: any = {};
   res.status = jest.fn().mockReturnValue(res);
